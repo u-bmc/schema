@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: BSD-3-Clause
+
+syntax = "proto3";
+
+package management.v1alpha1;
+
+service ManagementService {
+  rpc GetVersion(GetVersionRequest) returns (GetVersionResponse) {}
+  rpc TriggerButton(TriggerButtonRequest) returns (TriggerButtonResponse) {}
+  rpc StreamConsole(stream StreamConsoleRequest) returns (stream StreamConsoleResponse) {}
+  rpc GetFans(GetFansRequest) returns (GetFansResponse) {}
+  rpc SetFans(SetFansRequest) returns (SetFansResponse) {}
+}
+
+message GetVersionRequest {}
+
+message GetVersionResponse {
+  string version = 1;
+  string git_hash = 2;
+}
+
+enum Button {
+  BUTTON_UNSPECIFIED = 0;
+  BUTTON_POWER = 1;
+  BUTTON_RESET = 2;
+}
+
+message TriggerButtonRequest {
+  Button button = 1;
+  uint32 duration_ms = 2;
+}
+
+message TriggerButtonResponse {}
+
+message StreamConsoleRequest {
+  bytes data = 1;
+}
+
+message StreamConsoleResponse {
+  bytes data = 1;
+}
+
+message Fan {
+  uint32 fan = 1;
+  uint32 percentage = 2;
+  uint32 rpm = 3;
+}
+
+message GetFansRequest {}
+
+message GetFansResponse {
+  repeated Fan fan = 1;
+}
+
+message SetFansRequest {
+  repeated Fan fan = 1;
+}
+
+message SetFansResponse {}
