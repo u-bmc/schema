@@ -28,10 +28,13 @@ const (
 // ManagementServiceClient is a client for the management.v1alpha1.ManagementService service.
 type ManagementServiceClient interface {
 	GetVersion(context.Context, *connect_go.Request[v1alpha1.GetVersionRequest]) (*connect_go.Response[v1alpha1.GetVersionResponse], error)
-	TriggerButton(context.Context, *connect_go.Request[v1alpha1.TriggerButtonRequest]) (*connect_go.Response[v1alpha1.TriggerButtonResponse], error)
 	StreamConsole(context.Context) *connect_go.BidiStreamForClient[v1alpha1.StreamConsoleRequest, v1alpha1.StreamConsoleResponse]
-	GetFans(context.Context, *connect_go.Request[v1alpha1.GetFansRequest]) (*connect_go.Response[v1alpha1.GetFansResponse], error)
-	SetFans(context.Context, *connect_go.Request[v1alpha1.SetFansRequest]) (*connect_go.Response[v1alpha1.SetFansResponse], error)
+	GetPowerState(context.Context, *connect_go.Request[v1alpha1.GetPowerStateRequest]) (*connect_go.Response[v1alpha1.GetPowerStateResponse], error)
+	SetPowerState(context.Context, *connect_go.Request[v1alpha1.SetPowerStateRequest]) (*connect_go.Response[v1alpha1.SetPowerStateResponse], error)
+	GetSimpleDeviceData(context.Context, *connect_go.Request[v1alpha1.GetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetSimpleDeviceDataResponse], error)
+	SetSimpleDeviceData(context.Context, *connect_go.Request[v1alpha1.SetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetSimpleDeviceDataResponse], error)
+	GetComplexDeviceData(context.Context, *connect_go.Request[v1alpha1.GetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetComplexDeviceDataResponse], error)
+	SetComplexDeviceData(context.Context, *connect_go.Request[v1alpha1.SetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetComplexDeviceDataResponse], error)
 }
 
 // NewManagementServiceClient constructs a client for the management.v1alpha1.ManagementService
@@ -49,24 +52,39 @@ func NewManagementServiceClient(httpClient connect_go.HTTPClient, baseURL string
 			baseURL+"/management.v1alpha1.ManagementService/GetVersion",
 			opts...,
 		),
-		triggerButton: connect_go.NewClient[v1alpha1.TriggerButtonRequest, v1alpha1.TriggerButtonResponse](
-			httpClient,
-			baseURL+"/management.v1alpha1.ManagementService/TriggerButton",
-			opts...,
-		),
 		streamConsole: connect_go.NewClient[v1alpha1.StreamConsoleRequest, v1alpha1.StreamConsoleResponse](
 			httpClient,
 			baseURL+"/management.v1alpha1.ManagementService/StreamConsole",
 			opts...,
 		),
-		getFans: connect_go.NewClient[v1alpha1.GetFansRequest, v1alpha1.GetFansResponse](
+		getPowerState: connect_go.NewClient[v1alpha1.GetPowerStateRequest, v1alpha1.GetPowerStateResponse](
 			httpClient,
-			baseURL+"/management.v1alpha1.ManagementService/GetFans",
+			baseURL+"/management.v1alpha1.ManagementService/GetPowerState",
 			opts...,
 		),
-		setFans: connect_go.NewClient[v1alpha1.SetFansRequest, v1alpha1.SetFansResponse](
+		setPowerState: connect_go.NewClient[v1alpha1.SetPowerStateRequest, v1alpha1.SetPowerStateResponse](
 			httpClient,
-			baseURL+"/management.v1alpha1.ManagementService/SetFans",
+			baseURL+"/management.v1alpha1.ManagementService/SetPowerState",
+			opts...,
+		),
+		getSimpleDeviceData: connect_go.NewClient[v1alpha1.GetSimpleDeviceDataRequest, v1alpha1.GetSimpleDeviceDataResponse](
+			httpClient,
+			baseURL+"/management.v1alpha1.ManagementService/GetSimpleDeviceData",
+			opts...,
+		),
+		setSimpleDeviceData: connect_go.NewClient[v1alpha1.SetSimpleDeviceDataRequest, v1alpha1.SetSimpleDeviceDataResponse](
+			httpClient,
+			baseURL+"/management.v1alpha1.ManagementService/SetSimpleDeviceData",
+			opts...,
+		),
+		getComplexDeviceData: connect_go.NewClient[v1alpha1.GetComplexDeviceDataRequest, v1alpha1.GetComplexDeviceDataResponse](
+			httpClient,
+			baseURL+"/management.v1alpha1.ManagementService/GetComplexDeviceData",
+			opts...,
+		),
+		setComplexDeviceData: connect_go.NewClient[v1alpha1.SetComplexDeviceDataRequest, v1alpha1.SetComplexDeviceDataResponse](
+			httpClient,
+			baseURL+"/management.v1alpha1.ManagementService/SetComplexDeviceData",
 			opts...,
 		),
 	}
@@ -74,11 +92,14 @@ func NewManagementServiceClient(httpClient connect_go.HTTPClient, baseURL string
 
 // managementServiceClient implements ManagementServiceClient.
 type managementServiceClient struct {
-	getVersion    *connect_go.Client[v1alpha1.GetVersionRequest, v1alpha1.GetVersionResponse]
-	triggerButton *connect_go.Client[v1alpha1.TriggerButtonRequest, v1alpha1.TriggerButtonResponse]
-	streamConsole *connect_go.Client[v1alpha1.StreamConsoleRequest, v1alpha1.StreamConsoleResponse]
-	getFans       *connect_go.Client[v1alpha1.GetFansRequest, v1alpha1.GetFansResponse]
-	setFans       *connect_go.Client[v1alpha1.SetFansRequest, v1alpha1.SetFansResponse]
+	getVersion           *connect_go.Client[v1alpha1.GetVersionRequest, v1alpha1.GetVersionResponse]
+	streamConsole        *connect_go.Client[v1alpha1.StreamConsoleRequest, v1alpha1.StreamConsoleResponse]
+	getPowerState        *connect_go.Client[v1alpha1.GetPowerStateRequest, v1alpha1.GetPowerStateResponse]
+	setPowerState        *connect_go.Client[v1alpha1.SetPowerStateRequest, v1alpha1.SetPowerStateResponse]
+	getSimpleDeviceData  *connect_go.Client[v1alpha1.GetSimpleDeviceDataRequest, v1alpha1.GetSimpleDeviceDataResponse]
+	setSimpleDeviceData  *connect_go.Client[v1alpha1.SetSimpleDeviceDataRequest, v1alpha1.SetSimpleDeviceDataResponse]
+	getComplexDeviceData *connect_go.Client[v1alpha1.GetComplexDeviceDataRequest, v1alpha1.GetComplexDeviceDataResponse]
+	setComplexDeviceData *connect_go.Client[v1alpha1.SetComplexDeviceDataRequest, v1alpha1.SetComplexDeviceDataResponse]
 }
 
 // GetVersion calls management.v1alpha1.ManagementService.GetVersion.
@@ -86,34 +107,52 @@ func (c *managementServiceClient) GetVersion(ctx context.Context, req *connect_g
 	return c.getVersion.CallUnary(ctx, req)
 }
 
-// TriggerButton calls management.v1alpha1.ManagementService.TriggerButton.
-func (c *managementServiceClient) TriggerButton(ctx context.Context, req *connect_go.Request[v1alpha1.TriggerButtonRequest]) (*connect_go.Response[v1alpha1.TriggerButtonResponse], error) {
-	return c.triggerButton.CallUnary(ctx, req)
-}
-
 // StreamConsole calls management.v1alpha1.ManagementService.StreamConsole.
 func (c *managementServiceClient) StreamConsole(ctx context.Context) *connect_go.BidiStreamForClient[v1alpha1.StreamConsoleRequest, v1alpha1.StreamConsoleResponse] {
 	return c.streamConsole.CallBidiStream(ctx)
 }
 
-// GetFans calls management.v1alpha1.ManagementService.GetFans.
-func (c *managementServiceClient) GetFans(ctx context.Context, req *connect_go.Request[v1alpha1.GetFansRequest]) (*connect_go.Response[v1alpha1.GetFansResponse], error) {
-	return c.getFans.CallUnary(ctx, req)
+// GetPowerState calls management.v1alpha1.ManagementService.GetPowerState.
+func (c *managementServiceClient) GetPowerState(ctx context.Context, req *connect_go.Request[v1alpha1.GetPowerStateRequest]) (*connect_go.Response[v1alpha1.GetPowerStateResponse], error) {
+	return c.getPowerState.CallUnary(ctx, req)
 }
 
-// SetFans calls management.v1alpha1.ManagementService.SetFans.
-func (c *managementServiceClient) SetFans(ctx context.Context, req *connect_go.Request[v1alpha1.SetFansRequest]) (*connect_go.Response[v1alpha1.SetFansResponse], error) {
-	return c.setFans.CallUnary(ctx, req)
+// SetPowerState calls management.v1alpha1.ManagementService.SetPowerState.
+func (c *managementServiceClient) SetPowerState(ctx context.Context, req *connect_go.Request[v1alpha1.SetPowerStateRequest]) (*connect_go.Response[v1alpha1.SetPowerStateResponse], error) {
+	return c.setPowerState.CallUnary(ctx, req)
+}
+
+// GetSimpleDeviceData calls management.v1alpha1.ManagementService.GetSimpleDeviceData.
+func (c *managementServiceClient) GetSimpleDeviceData(ctx context.Context, req *connect_go.Request[v1alpha1.GetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetSimpleDeviceDataResponse], error) {
+	return c.getSimpleDeviceData.CallUnary(ctx, req)
+}
+
+// SetSimpleDeviceData calls management.v1alpha1.ManagementService.SetSimpleDeviceData.
+func (c *managementServiceClient) SetSimpleDeviceData(ctx context.Context, req *connect_go.Request[v1alpha1.SetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetSimpleDeviceDataResponse], error) {
+	return c.setSimpleDeviceData.CallUnary(ctx, req)
+}
+
+// GetComplexDeviceData calls management.v1alpha1.ManagementService.GetComplexDeviceData.
+func (c *managementServiceClient) GetComplexDeviceData(ctx context.Context, req *connect_go.Request[v1alpha1.GetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetComplexDeviceDataResponse], error) {
+	return c.getComplexDeviceData.CallUnary(ctx, req)
+}
+
+// SetComplexDeviceData calls management.v1alpha1.ManagementService.SetComplexDeviceData.
+func (c *managementServiceClient) SetComplexDeviceData(ctx context.Context, req *connect_go.Request[v1alpha1.SetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetComplexDeviceDataResponse], error) {
+	return c.setComplexDeviceData.CallUnary(ctx, req)
 }
 
 // ManagementServiceHandler is an implementation of the management.v1alpha1.ManagementService
 // service.
 type ManagementServiceHandler interface {
 	GetVersion(context.Context, *connect_go.Request[v1alpha1.GetVersionRequest]) (*connect_go.Response[v1alpha1.GetVersionResponse], error)
-	TriggerButton(context.Context, *connect_go.Request[v1alpha1.TriggerButtonRequest]) (*connect_go.Response[v1alpha1.TriggerButtonResponse], error)
 	StreamConsole(context.Context, *connect_go.BidiStream[v1alpha1.StreamConsoleRequest, v1alpha1.StreamConsoleResponse]) error
-	GetFans(context.Context, *connect_go.Request[v1alpha1.GetFansRequest]) (*connect_go.Response[v1alpha1.GetFansResponse], error)
-	SetFans(context.Context, *connect_go.Request[v1alpha1.SetFansRequest]) (*connect_go.Response[v1alpha1.SetFansResponse], error)
+	GetPowerState(context.Context, *connect_go.Request[v1alpha1.GetPowerStateRequest]) (*connect_go.Response[v1alpha1.GetPowerStateResponse], error)
+	SetPowerState(context.Context, *connect_go.Request[v1alpha1.SetPowerStateRequest]) (*connect_go.Response[v1alpha1.SetPowerStateResponse], error)
+	GetSimpleDeviceData(context.Context, *connect_go.Request[v1alpha1.GetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetSimpleDeviceDataResponse], error)
+	SetSimpleDeviceData(context.Context, *connect_go.Request[v1alpha1.SetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetSimpleDeviceDataResponse], error)
+	GetComplexDeviceData(context.Context, *connect_go.Request[v1alpha1.GetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetComplexDeviceDataResponse], error)
+	SetComplexDeviceData(context.Context, *connect_go.Request[v1alpha1.SetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetComplexDeviceDataResponse], error)
 }
 
 // NewManagementServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -128,24 +167,39 @@ func NewManagementServiceHandler(svc ManagementServiceHandler, opts ...connect_g
 		svc.GetVersion,
 		opts...,
 	))
-	mux.Handle("/management.v1alpha1.ManagementService/TriggerButton", connect_go.NewUnaryHandler(
-		"/management.v1alpha1.ManagementService/TriggerButton",
-		svc.TriggerButton,
-		opts...,
-	))
 	mux.Handle("/management.v1alpha1.ManagementService/StreamConsole", connect_go.NewBidiStreamHandler(
 		"/management.v1alpha1.ManagementService/StreamConsole",
 		svc.StreamConsole,
 		opts...,
 	))
-	mux.Handle("/management.v1alpha1.ManagementService/GetFans", connect_go.NewUnaryHandler(
-		"/management.v1alpha1.ManagementService/GetFans",
-		svc.GetFans,
+	mux.Handle("/management.v1alpha1.ManagementService/GetPowerState", connect_go.NewUnaryHandler(
+		"/management.v1alpha1.ManagementService/GetPowerState",
+		svc.GetPowerState,
 		opts...,
 	))
-	mux.Handle("/management.v1alpha1.ManagementService/SetFans", connect_go.NewUnaryHandler(
-		"/management.v1alpha1.ManagementService/SetFans",
-		svc.SetFans,
+	mux.Handle("/management.v1alpha1.ManagementService/SetPowerState", connect_go.NewUnaryHandler(
+		"/management.v1alpha1.ManagementService/SetPowerState",
+		svc.SetPowerState,
+		opts...,
+	))
+	mux.Handle("/management.v1alpha1.ManagementService/GetSimpleDeviceData", connect_go.NewUnaryHandler(
+		"/management.v1alpha1.ManagementService/GetSimpleDeviceData",
+		svc.GetSimpleDeviceData,
+		opts...,
+	))
+	mux.Handle("/management.v1alpha1.ManagementService/SetSimpleDeviceData", connect_go.NewUnaryHandler(
+		"/management.v1alpha1.ManagementService/SetSimpleDeviceData",
+		svc.SetSimpleDeviceData,
+		opts...,
+	))
+	mux.Handle("/management.v1alpha1.ManagementService/GetComplexDeviceData", connect_go.NewUnaryHandler(
+		"/management.v1alpha1.ManagementService/GetComplexDeviceData",
+		svc.GetComplexDeviceData,
+		opts...,
+	))
+	mux.Handle("/management.v1alpha1.ManagementService/SetComplexDeviceData", connect_go.NewUnaryHandler(
+		"/management.v1alpha1.ManagementService/SetComplexDeviceData",
+		svc.SetComplexDeviceData,
 		opts...,
 	))
 	return "/management.v1alpha1.ManagementService/", mux
@@ -158,18 +212,30 @@ func (UnimplementedManagementServiceHandler) GetVersion(context.Context, *connec
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.GetVersion is not implemented"))
 }
 
-func (UnimplementedManagementServiceHandler) TriggerButton(context.Context, *connect_go.Request[v1alpha1.TriggerButtonRequest]) (*connect_go.Response[v1alpha1.TriggerButtonResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.TriggerButton is not implemented"))
-}
-
 func (UnimplementedManagementServiceHandler) StreamConsole(context.Context, *connect_go.BidiStream[v1alpha1.StreamConsoleRequest, v1alpha1.StreamConsoleResponse]) error {
 	return connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.StreamConsole is not implemented"))
 }
 
-func (UnimplementedManagementServiceHandler) GetFans(context.Context, *connect_go.Request[v1alpha1.GetFansRequest]) (*connect_go.Response[v1alpha1.GetFansResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.GetFans is not implemented"))
+func (UnimplementedManagementServiceHandler) GetPowerState(context.Context, *connect_go.Request[v1alpha1.GetPowerStateRequest]) (*connect_go.Response[v1alpha1.GetPowerStateResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.GetPowerState is not implemented"))
 }
 
-func (UnimplementedManagementServiceHandler) SetFans(context.Context, *connect_go.Request[v1alpha1.SetFansRequest]) (*connect_go.Response[v1alpha1.SetFansResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.SetFans is not implemented"))
+func (UnimplementedManagementServiceHandler) SetPowerState(context.Context, *connect_go.Request[v1alpha1.SetPowerStateRequest]) (*connect_go.Response[v1alpha1.SetPowerStateResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.SetPowerState is not implemented"))
+}
+
+func (UnimplementedManagementServiceHandler) GetSimpleDeviceData(context.Context, *connect_go.Request[v1alpha1.GetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetSimpleDeviceDataResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.GetSimpleDeviceData is not implemented"))
+}
+
+func (UnimplementedManagementServiceHandler) SetSimpleDeviceData(context.Context, *connect_go.Request[v1alpha1.SetSimpleDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetSimpleDeviceDataResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.SetSimpleDeviceData is not implemented"))
+}
+
+func (UnimplementedManagementServiceHandler) GetComplexDeviceData(context.Context, *connect_go.Request[v1alpha1.GetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.GetComplexDeviceDataResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.GetComplexDeviceData is not implemented"))
+}
+
+func (UnimplementedManagementServiceHandler) SetComplexDeviceData(context.Context, *connect_go.Request[v1alpha1.SetComplexDeviceDataRequest]) (*connect_go.Response[v1alpha1.SetComplexDeviceDataResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("management.v1alpha1.ManagementService.SetComplexDeviceData is not implemented"))
 }

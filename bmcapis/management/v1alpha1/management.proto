@@ -4,12 +4,18 @@ syntax = "proto3";
 
 package management.v1alpha1;
 
+import "google/protobuf/any.proto";
+import "google/protobuf/struct.proto";
+
 service ManagementService {
   rpc GetVersion(GetVersionRequest) returns (GetVersionResponse) {}
-  rpc TriggerButton(TriggerButtonRequest) returns (TriggerButtonResponse) {}
   rpc StreamConsole(stream StreamConsoleRequest) returns (stream StreamConsoleResponse) {}
-  rpc GetFans(GetFansRequest) returns (GetFansResponse) {}
-  rpc SetFans(SetFansRequest) returns (SetFansResponse) {}
+  rpc GetPowerState(GetPowerStateRequest) returns (GetPowerStateResponse) {}
+  rpc SetPowerState(SetPowerStateRequest) returns (SetPowerStateResponse) {}
+  rpc GetSimpleDeviceData(GetSimpleDeviceDataRequest) returns (GetSimpleDeviceDataResponse) {}
+  rpc SetSimpleDeviceData(SetSimpleDeviceDataRequest) returns (SetSimpleDeviceDataResponse) {}
+  rpc GetComplexDeviceData(GetComplexDeviceDataRequest) returns (GetComplexDeviceDataResponse) {}
+  rpc SetComplexDeviceData(SetComplexDeviceDataRequest) returns (SetComplexDeviceDataResponse) {}
 }
 
 message GetVersionRequest {}
@@ -19,19 +25,6 @@ message GetVersionResponse {
   string git_hash = 2;
 }
 
-enum Button {
-  BUTTON_UNSPECIFIED = 0;
-  BUTTON_POWER = 1;
-  BUTTON_RESET = 2;
-}
-
-message TriggerButtonRequest {
-  Button button = 1;
-  uint32 duration_ms = 2;
-}
-
-message TriggerButtonResponse {}
-
 message StreamConsoleRequest {
   bytes data = 1;
 }
@@ -40,20 +33,68 @@ message StreamConsoleResponse {
   bytes data = 1;
 }
 
-message Fan {
-  uint32 fan = 1;
-  uint32 percentage = 2;
-  uint32 rpm = 3;
+enum PowerSignal {
+  POWER_SIGNAL_UNSPECIFIED = 0;
+  POWER_SIGNAL_ON = 1;
+  POWER_SIGNAL_OFF = 2;
+  POWER_SIGNAL_RESET = 3;
 }
 
-message GetFansRequest {}
-
-message GetFansResponse {
-  repeated Fan fan = 1;
+enum PowerState {
+  POWER_STATE_UNSPECIFIED = 0;
+  POWER_STATE_ON = 1;
+  POWER_STATE_OFF = 2;
 }
 
-message SetFansRequest {
-  repeated Fan fan = 1;
+message GetPowerStateRequest {}
+
+message GetPowerStateResponse {
+  PowerState state = 1;
 }
 
-message SetFansResponse {}
+message SetPowerStateRequest {
+  PowerSignal signal = 1;
+  uint32 duration_ms = 2;
+}
+
+message SetPowerStateResponse {
+  PowerState state = 1;
+}
+
+message GetSimpleDeviceDataRequest {
+  string device = 1;
+  uint32 number = 2;
+}
+
+message GetSimpleDeviceDataResponse {
+  google.protobuf.Any data = 1;
+}
+
+message SetSimpleDeviceDataRequest {
+  string device = 1;
+  uint32 number = 2;
+  google.protobuf.Any data = 3;
+}
+
+message SetSimpleDeviceDataResponse {
+  uint32 status = 1;
+}
+
+message GetComplexDeviceDataRequest {
+  string device = 1;
+  uint32 number = 2;
+}
+
+message GetComplexDeviceDataResponse {
+  google.protobuf.Struct data = 1;
+}
+
+message SetComplexDeviceDataRequest {
+  string device = 1;
+  uint32 number = 2;
+  google.protobuf.Struct data = 3;
+}
+
+message SetComplexDeviceDataResponse {
+  uint32 status = 1;
+}
