@@ -28,7 +28,8 @@ const (
 // ConfigurationServiceClient is a client for the configuration.v1alpha1.ConfigurationService
 // service.
 type ConfigurationServiceClient interface {
-	GetLoglevel(context.Context, *connect_go.Request[v1alpha1.GetLoglevelRequest]) (*connect_go.Response[v1alpha1.GetLoglevelResponse], error)
+	GetConfiguration(context.Context, *connect_go.Request[v1alpha1.GetConfigurationRequest]) (*connect_go.Response[v1alpha1.GetConfigurationResponse], error)
+	SetConfiguration(context.Context, *connect_go.Request[v1alpha1.SetConfigurationRequest]) (*connect_go.Response[v1alpha1.SetConfigurationResponse], error)
 }
 
 // NewConfigurationServiceClient constructs a client for the
@@ -42,9 +43,14 @@ type ConfigurationServiceClient interface {
 func NewConfigurationServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) ConfigurationServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &configurationServiceClient{
-		getLoglevel: connect_go.NewClient[v1alpha1.GetLoglevelRequest, v1alpha1.GetLoglevelResponse](
+		getConfiguration: connect_go.NewClient[v1alpha1.GetConfigurationRequest, v1alpha1.GetConfigurationResponse](
 			httpClient,
-			baseURL+"/configuration.v1alpha1.ConfigurationService/GetLoglevel",
+			baseURL+"/configuration.v1alpha1.ConfigurationService/GetConfiguration",
+			opts...,
+		),
+		setConfiguration: connect_go.NewClient[v1alpha1.SetConfigurationRequest, v1alpha1.SetConfigurationResponse](
+			httpClient,
+			baseURL+"/configuration.v1alpha1.ConfigurationService/SetConfiguration",
 			opts...,
 		),
 	}
@@ -52,18 +58,25 @@ func NewConfigurationServiceClient(httpClient connect_go.HTTPClient, baseURL str
 
 // configurationServiceClient implements ConfigurationServiceClient.
 type configurationServiceClient struct {
-	getLoglevel *connect_go.Client[v1alpha1.GetLoglevelRequest, v1alpha1.GetLoglevelResponse]
+	getConfiguration *connect_go.Client[v1alpha1.GetConfigurationRequest, v1alpha1.GetConfigurationResponse]
+	setConfiguration *connect_go.Client[v1alpha1.SetConfigurationRequest, v1alpha1.SetConfigurationResponse]
 }
 
-// GetLoglevel calls configuration.v1alpha1.ConfigurationService.GetLoglevel.
-func (c *configurationServiceClient) GetLoglevel(ctx context.Context, req *connect_go.Request[v1alpha1.GetLoglevelRequest]) (*connect_go.Response[v1alpha1.GetLoglevelResponse], error) {
-	return c.getLoglevel.CallUnary(ctx, req)
+// GetConfiguration calls configuration.v1alpha1.ConfigurationService.GetConfiguration.
+func (c *configurationServiceClient) GetConfiguration(ctx context.Context, req *connect_go.Request[v1alpha1.GetConfigurationRequest]) (*connect_go.Response[v1alpha1.GetConfigurationResponse], error) {
+	return c.getConfiguration.CallUnary(ctx, req)
+}
+
+// SetConfiguration calls configuration.v1alpha1.ConfigurationService.SetConfiguration.
+func (c *configurationServiceClient) SetConfiguration(ctx context.Context, req *connect_go.Request[v1alpha1.SetConfigurationRequest]) (*connect_go.Response[v1alpha1.SetConfigurationResponse], error) {
+	return c.setConfiguration.CallUnary(ctx, req)
 }
 
 // ConfigurationServiceHandler is an implementation of the
 // configuration.v1alpha1.ConfigurationService service.
 type ConfigurationServiceHandler interface {
-	GetLoglevel(context.Context, *connect_go.Request[v1alpha1.GetLoglevelRequest]) (*connect_go.Response[v1alpha1.GetLoglevelResponse], error)
+	GetConfiguration(context.Context, *connect_go.Request[v1alpha1.GetConfigurationRequest]) (*connect_go.Response[v1alpha1.GetConfigurationResponse], error)
+	SetConfiguration(context.Context, *connect_go.Request[v1alpha1.SetConfigurationRequest]) (*connect_go.Response[v1alpha1.SetConfigurationResponse], error)
 }
 
 // NewConfigurationServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -73,9 +86,14 @@ type ConfigurationServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewConfigurationServiceHandler(svc ConfigurationServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/configuration.v1alpha1.ConfigurationService/GetLoglevel", connect_go.NewUnaryHandler(
-		"/configuration.v1alpha1.ConfigurationService/GetLoglevel",
-		svc.GetLoglevel,
+	mux.Handle("/configuration.v1alpha1.ConfigurationService/GetConfiguration", connect_go.NewUnaryHandler(
+		"/configuration.v1alpha1.ConfigurationService/GetConfiguration",
+		svc.GetConfiguration,
+		opts...,
+	))
+	mux.Handle("/configuration.v1alpha1.ConfigurationService/SetConfiguration", connect_go.NewUnaryHandler(
+		"/configuration.v1alpha1.ConfigurationService/SetConfiguration",
+		svc.SetConfiguration,
 		opts...,
 	))
 	return "/configuration.v1alpha1.ConfigurationService/", mux
@@ -84,6 +102,10 @@ func NewConfigurationServiceHandler(svc ConfigurationServiceHandler, opts ...con
 // UnimplementedConfigurationServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedConfigurationServiceHandler struct{}
 
-func (UnimplementedConfigurationServiceHandler) GetLoglevel(context.Context, *connect_go.Request[v1alpha1.GetLoglevelRequest]) (*connect_go.Response[v1alpha1.GetLoglevelResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("configuration.v1alpha1.ConfigurationService.GetLoglevel is not implemented"))
+func (UnimplementedConfigurationServiceHandler) GetConfiguration(context.Context, *connect_go.Request[v1alpha1.GetConfigurationRequest]) (*connect_go.Response[v1alpha1.GetConfigurationResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("configuration.v1alpha1.ConfigurationService.GetConfiguration is not implemented"))
+}
+
+func (UnimplementedConfigurationServiceHandler) SetConfiguration(context.Context, *connect_go.Request[v1alpha1.SetConfigurationRequest]) (*connect_go.Response[v1alpha1.SetConfigurationResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("configuration.v1alpha1.ConfigurationService.SetConfiguration is not implemented"))
 }

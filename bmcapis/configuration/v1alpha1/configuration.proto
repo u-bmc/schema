@@ -4,26 +4,23 @@ syntax = "proto3";
 
 package configuration.v1alpha1;
 
+import "google/protobuf/struct.proto";
+
 service ConfigurationService {
-  rpc GetLoglevel(GetLoglevelRequest) returns (GetLoglevelResponse) {}
+  rpc GetConfiguration(GetConfigurationRequest) returns (GetConfigurationResponse) {}
+  rpc SetConfiguration(SetConfigurationRequest) returns (SetConfigurationResponse) {}
 }
 
-enum Loglevel {
-  LOGLEVEL_UNSPECIFIED = 0;
-  LOGLEVEL_DEBUG = 1;
-  LOGLEVEL_INFO = 2;
-  LOGLEVEL_WARN = 3;
-  LOGLEVEL_ERROR = 4;
+message GetConfigurationRequest {}
+
+message GetConfigurationResponse {
+  google.protobuf.Struct configuration = 1;
 }
 
-message GetLoglevelRequest {}
-
-message GetLoglevelResponse {
-  Loglevel level = 1;
+message SetConfigurationRequest {
+  google.protobuf.Struct configuration = 1;
 }
 
-message SetLoglevelRequest {
-  Loglevel level = 1;
+message SetConfigurationResponse {
+  uint32 status = 1;
 }
-
-message SetLoglevelResponse {}
